@@ -23,3 +23,6 @@ Getting the accuracy and f1 also produced a new pair of loss values, and I am no
 ## Hyperparameters
 I did very little parameter tuning on the actual model that I ran, both as a result of the initial version that ran in collab taking 7 hours to run, and because I still don't have a very good understanding of what the various parameters do. Most of the parameters on the tokenzier didn't seem to apply in my case, or where already the way I needed them by default. The only task-specific parameter I passed to the model was the number of labels, and that wouldn't change with tuning. I don't think I know enough to say what parameters I could tune to get better results, and that is likely because I don't know that they exist.  
 
+## Relevant Links
+[Model](https://huggingface.co/distilbert/distilbert-base-uncased)
+[Dataset](https://huggingface.co/datasets/SetFit/20_newsgroups)
