@@ -19,8 +19,21 @@ I decided that trying to get the model to detect 20 categories was too much for 
 |soc|soc.religion.christian|
 |talk|talk.politics.guns<br> talk.politics.mideast<br> talk.politics.misc<br> talk.religion.misc|
 
+This resulted in a change in the distribution of the categories; initially, the 20 topic categories had a nearly uniform distribution:
 
-The next step was to clean each entry before passing it to the model. This process was<ul>
+<img src="notebooks/charts/cat_dist1.png" alt="Original topic distributions"/>
+<div style="clear: both;"></div>
+<p>
+
+However, some of the new categories only have one category feeding into them, while others have four or more, which results in this distribution of the new categories:
+
+<img src="notebooks/charts/cat_dist2.png" alt="New topic distributions"/>
+<div style="clear: both;"></div>
+<p>
+
+The fact that there are 3 under represented categories was a source of concern while building the model. <p>
+
+The next step was to clean each entry before passing it to the model. This process involved:<ul>
 - removing newline characters<br>
 - removing html tags<br>
 - removing URLs<br>
