@@ -55,15 +55,37 @@ Below is an example of this process on one entry, showing how it changed at each
 <p>
 For comparison, the total numbers of words present in each set, before and after the removal of stopwords are:
 
-|section|stopwords|total  |unique |
+|Section|Stopwords|Total  |Unique |
 |-------|---------|------:|------:|
-|train  |with     |2036545|  94761|
-|train  |without  |1150420|  94622|
+|Train  |With     |2036545|  94761|
+|Train  |Without  |1150420|  94622|
 |       |         |       |       |
-|test   |with     |1285775|  68554|
-|test   |without  | 723349|  68415|
+|Test   |With     |1285775|  68554|
+|Test   |Without  | 723349|  68415|
 <p>
 <br>
+
+## Representation with SKLearn
+I wanted to see if there was a difference in performance when stopwords were dropped versus when they were not, so I had a column for each version of the cleaned data; `preprocess`, where only the preprocessing had been done, and `no_stopword` where the stopwords had also been dropped. <p>
+
+Each of the columns was run through SKLearn's `TfidVectorizer` to convert the words into numeric arrays, and then `LatentDirichletAllocation` (LDA) was used to attempt to assign categories to each document. Below are graphs comparing the actual topic categories to what LDA assigned them.<p>
+
+<img src="notebooks/charts/lda_output.png" alt="LDA outputs"/>
+<div style="clear: both;"></div>
+<p>
+
+Clearly, this model did not do a very good job. However, it did do slightly better when the stopwords were removed, which is what I expected to see. The exact accuracy can be seen here:
+
+|Section|Stopwords|Accuracy|
+|-------|---------|-------:|
+|Train  |With     |   4.38%|
+|Test   |With     |   4.24%|
+|       |         |        |
+|Train  |Without  |   6.71%|
+|Test   |Without  |   5.87%|
+<p>
+<br>
+
 
 ## Pre-trained Model
 The pretrained model I used was DistilBert, and more specifically the `DistilBertForSequenceClassification`. It has the paired tokenizer DistilBertTokenizer, which I used for tokenization prior to training the model. Both were initialized using the pretrained instance `distilbert-base-uncased`. <p>
