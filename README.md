@@ -53,6 +53,7 @@ Below is an example of this process on one entry, showing how it changed at each
 >Stopwords Removed
 >>'article tom baker understanding expected errors basically known bugs warning system software things checked dont right values yet arent set till launch suchlike rather fix code possibly introduce new bugs tell crew ok see warning 213 liftoff ignore'
 <p>
+
 For comparison, the total numbers of words present in each set, before and after the removal of stopwords are:
 
 |Section|Stopwords|Total  |Unique |
@@ -84,26 +85,75 @@ Clearly, this model did not do a very good job. However, it did do slightly bett
 |Train  |Without  |   6.71%|
 |Test   |Without  |   5.87%|
 <p>
+
+This accuracy result is accually _worse_ than random chance would be (~14%), which implies that the model is learning _something_, but not at all the right things. 
+<p>
+<br>
+
+## Pre-trained Model
+The pretrained model I used was DistilBert, and more specifically the `DistilBertForSequenceClassification`. It has the paired tokenizer `DistilBertTokenizer`, which I used for tokenization prior to training the model. Both were initialized using the pretrained instance `distilbert-base-uncased`. <p>
+
+I chose this model as, from the ones we discussed, this was the one suited to the task I had chosen, which was confirmed when it showed up on the HuggingFace directory when I searched by task. I then chose the offshoot version of the model because it is very specifically suited to my task.<p>
+<p>
+<br>
+
+## Exploring Pipelines
+For compatibility with HuggingFace environments, I created a new DatasetDict object using the `no_stopword` column, the new label categories I created (renamed to 'label', again for compatibility), and the original label text.<p>
+
+I attempted to use HuggingFace's built in pipelines, but I had problems getting reasonable outputs from it. Even though I gave it the number of categories I was looking for, it had a tendency to only use two of the options. Asking it to only process a small fraction of the data resulted in more of the labels being used, but the labels did not match up to the target labels, and as I was unsure as to how do control what the pipeline was doing internally, I decided to proceed by doing the entire process step by step in another notebook.
+<p>
+<br>
+
+## Model Training
+To set up and train the model without using a pipeline, the first step was to tokenize the data, and initiate the model. Tokenization was set to allow padding and truncation, as I encountered issues with tensor length limits without those settings, and also with batching enabled to ensure there were no memory issues. The model was initiated with the only special parameter being the target number of categories. <p>
+
+I also needed to create a way to evalute the performance of the model during training. I chose to use both **accuracy** and the **F1** score; including the F1 score was especially important in this case due to the 3 categories that were under represented in my simplified categories.<p>
+
+The `Trainer` took the model, tokenizer, and performance metrics function as arguments, as well as specification of training vs test datasets. It also looked at the DatasetDict item's `label` columns, which it uses for the evaluation of the model. <p>
+
+### Training Results
+To get a rough idea of how well the model had done, I first plotted the model's predicted labels over the actual labels from the data.<p>
+
+<img src="notebooks/charts/trained_model_preds.png" alt="Trained model predictions"/>
+<div style="clear: both;"></div>
+<p>
+
+This shows that the model did a good job of learning two of the three under represented categories, but completely missed the third.<p>
+
+Because this is a classification task, to the best of my knowledge and as far as I can find, the model by default uses a cross-entropy loss function to evaluate its progress. This only happens if it is given labeled data during training, but my dataset *is* labeled, so it was produced. <p>
+
+During training, two loss values were produced; I am unsure what stage of training the first value is from, but the second is from the final step. I got the results for the train and test datasets specifically after running the `trainer.evalute` method on each. <p>
+
+To give a yardstick of how well the model was doing, while charting the evaluation metrics, I included a column for how well a random chance classifier would be expected to do on the same task. Given that I have 7 categories, the loss score would be expected to be around 1.95, and the accuracy and f1 would both be expected to be around 0.14. <p>
+
+<img src="notebooks/charts/training_evals.png" alt="Model Evaluation results"/>
+<div style="clear: both;"></div>
+<p>
+
+There is a small drop between the two loss values produced during training, and then the values for the train and test datasets individually are smaller again, although there is an increase between train and test. All of these values are a significant improvement over the value that would be expected from random chance however; even the first training value is less than half of the random chance value. <p>
+
+Looking at accuracy and f1, they both dramatically outperform random chance. There is a drop from the train set to the test set, which is to be expected, and there is also a decrease between the accuracy and the f1 score. This is also expected, given that the first chart in this section shows one of the categories was missed entirely, but the drop is not a large one. Below are tables of the exact values.<p>
+
+|Chart label|Loss value|
+|-----------|---------:|
+|Training 1 |     0.881|
+|Training 2 |     0.806|
+|Eval: Train|     0.521|
+|Eval: Test |     0.632|
+
+
+|Chart label|Accuracy|F1   |Difference| 
+|-----------|-------:|----:|---------:|
+|Eval: Train|   0.818|0.802|     0.016|
+|Eval: Test |   0.774|0.759|     0.015|
+|           |        |     |          |
+|Drop       |0.044   |0.043|     -----|
+
+Given the model's consistent performance between the train and test sets, as well as between accuracy and f1, along with the loss score being quite good for a 7 option classification task, this model is performing very well on the task, especially considering no hyperparameters were tuned and only one round of training was performed. 
+<p>
 <br>
 
 
-## Pre-trained Model
-The pretrained model I used was DistilBert, and more specifically the `DistilBertForSequenceClassification`. It has the paired tokenizer DistilBertTokenizer, which I used for tokenization prior to training the model. Both were initialized using the pretrained instance `distilbert-base-uncased`. <p>
-
-I chose this model as, from the ones we discussed, this was the one suited to the task I had chosen, which was confirmed when it showed up on the HuggingFace directory when I searched by task. I then chose the offshoot version of the model because it is very specifically suited to my task.<p>
-
-## Performance Metrics
-Because this is a classification task, to the best of my knowledge and as far as I can find, the model by default uses a cross-entropy loss function to evaluate its progress. This only happens if it is given labeled data during training, but my dataset *is* labeled, so it was produced. 
-
-Given I have 7 labels, random guessing would give a loss score of around 1.95, while the model had a training loss of only 0.81 and a final training loss of 0.52 on the train set and 0.63 on the test set. 
-
-I also used accuracy and f1, as with classification the goal is to be correct. On evaluation, the accuracy scores were 82% to 77%, and the f1 was 0.80 to 0.76. Because I altered the number of categories I was working with and created under-represented categories, it was important to also have the f1 score, as it is potentially more sensitive to imbalanced data. However, both metrics show similar performance and similar drops between the training and testing sets. This model, even with very basic parameters and one round of training, performs quite well; miles better than the SKLearn attempt, and also than complete randomness, which would be 1/7 or about 14%.
-
-Getting the accuracy and f1 also produced a new pair of loss values, and I am not entirely sure if those are for the trained model, while the others were for the in-training model, or if something else was going on. But the loss scores produced by the evaluate trainer method showed as lower. This makes sense if they are from the trained model. 
-
-## Hyperparameters
-I did very little parameter tuning on the actual model that I ran, both as a result of the initial version that ran in collab taking 7 hours to run, and because I still don't have a very good understanding of what the various parameters do. Most of the parameters on the tokenzier didn't seem to apply in my case, or where already the way I needed them by default. The only task-specific parameter I passed to the model was the number of labels, and that wouldn't change with tuning. I don't think I know enough to say what parameters I could tune to get better results, and that is likely because I don't know that they exist.  <p>
-
 ## Relevant Links
-[Model](https://huggingface.co/distilbert/distilbert-base-uncased)
+[Model](https://huggingface.co/distilbert/distilbert-base-uncased)<br>
 [Dataset](https://huggingface.co/datasets/SetFit/20_newsgroups)
