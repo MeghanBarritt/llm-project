@@ -3,6 +3,10 @@
 ## Project Task
 I chose the **Topic Modelling task**, which involves taking text from the `20_newsgroups` dataset and sorting it into groups based on the text's content. <p>
 
+## Relevant Links
+[Dataset](https://huggingface.co/datasets/SetFit/20_newsgroups)<br>
+[Model](https://huggingface.co/distilbert/distilbert-base-uncased)
+
 ## Dataset
 The `20_newsgroups` dataset comes presplit into training and testing sets, both prelabeled with true categories, both as a numerical value and a string. These string values reveal that the categories are the end result of breaking down larger, less specific categories into more granular ones. There are 11.3k items in the training set, and 7.5k in the test set, with a nearly uniform distribution across the 20 categories present.<p>
 
@@ -126,7 +130,7 @@ During training, two loss values were produced; I am unsure what stage of traini
 
 To give a yardstick of how well the model was doing, while charting the evaluation metrics, I included a column for how well a random chance classifier would be expected to do on the same task. Given that I have 7 categories, the loss score would be expected to be around 1.95, and the accuracy and f1 would both be expected to be around 0.14. <p>
 
-<img src="notebooks/charts/training_evals.png" alt="Model Evaluation results"/>
+<img src="notebooks/charts/training_evals.png" alt="Model evaluation results"/>
 <div style="clear: both;"></div>
 <p>
 
@@ -140,6 +144,7 @@ Looking at accuracy and f1, they both dramatically outperform random chance. The
 |Training 2 |     0.806|
 |Eval: Train|     0.521|
 |Eval: Test |     0.632|
+|Chance     |     1.950|
 
 
 |Chart label|Accuracy|F1   |Difference| 
@@ -153,7 +158,34 @@ Given the model's consistent performance between the train and test sets, as wel
 <p>
 <br>
 
+### Full Label Set
+Because I had such good results from the model with only 7 categories, I decided to try running the exact same setup for the original 20 categories. <p>
 
-## Relevant Links
-[Model](https://huggingface.co/distilbert/distilbert-base-uncased)<br>
-[Dataset](https://huggingface.co/datasets/SetFit/20_newsgroups)
+I used the same preprocessing funcitons and process, as well as the exact same trainer configurations, aside from the number of labels expected of the model. <p>
+
+<img src="notebooks/charts/preds_fullset.png" alt="Model predictions, 20 labels"/>
+<div style="clear: both;"></div>
+<p>
+
+<img src="notebooks/charts/evals_fullset.png" alt="Model evaluation, 20 labels"/>
+<div style="clear: both;"></div>
+<p>
+
+On a single round of training, the results were not nearly as strong as they were for the 7 category version. The model still did much better than random chance in terms of correctness, but nowhere near as well as the 7 label version. The initial loss value was almost as high as random chance, and did decrease, but never got as low as even the highest loss from the 7 labels version. I don't know if having more rounds of training would improve that, or if I need to change other hyperparameters.<p>
+
+|Chart label|Loss value|
+|-----------|---------:|
+|Training 1 |     1.922|
+|Training 2 |     1.758|
+|Eval: Train|     1.234|
+|Eval: Test |     1.374|
+|Chance     |     1.950|
+
+
+|Chart label|Accuracy|F1   |Difference|
+|-----------|-------:|----:|---------:|
+|Eval: Train|   0.656|0.630|     0.026|
+|Eval: Test |   0.603|0.580|     0.023|
+|           |        |     |          |
+|Drop       |   0.053|0.050|     -----|
+
