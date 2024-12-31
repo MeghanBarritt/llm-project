@@ -188,4 +188,93 @@ On a single round of training, the results were not nearly as strong as they wer
 |Eval: Test |   0.603|0.580|     0.023|
 |           |        |     |          |
 |Drop       |   0.053|0.050|     -----|
+<p>
+<br>
 
+### Additional Training Rounds
+To try and improve the models' performance, I ran both with 4 training epochs instead of one, while keeping everything else the same. 
+
+#### 7 label model
+<img src="notebooks/charts/preds_multistep_7.png" alt="7 label, 4 epoch predictions"/>
+<div style="clear: both;"></div>
+<p>
+
+<img src="notebooks/charts/evals_multistep_7.png" alt="7 label model evaluations"/>
+<div style="clear: both;"></div>
+<p>
+<br>
+<p>
+
+|Loss Value |1 Epoch|4 Epochs|Change|
+|-----------|------:|-------:|-----:|
+|Train Avg  |  0.806|   0.431|-0.375|
+|Eval: Train|  0.521|   0.164|-0.357|
+|Eval: Test |  0.632|   0.654|+0.022|
+<p>
+<p>
+
+|Chart Label|Accuracy<br>1 Epoch|Accuracy<br>4 Epochs|Change|F1<br>1 Epoch|F1<br>4 Epochs|Change|
+|-----------|------------------:|-------------------:|-----:|------------:|-------------:|-----:|
+|Eval: Train|              0.818|               0.948| 0.130|        0.802|         0.948| 0.146|
+|Eval: Test |              0.774|               0.808| 0.034|        0.759|         0.808| 0.049|
+|           |                   |                    |      |             |              |      |
+|Drop       |              0.044|               0.140| -----|        0.096|         0.140| -----|
+<p>
+<p>
+
+|Model                   |Accuracy|F1   |Difference|
+|------------------------|-------:|----:|---------:|
+|1 epoch, 7 label, train |   0.818|0.802|     0.016|
+|1 epoch, 7 label, test  |   0.774|0.759|     0.015|
+|                        |        |     |          |
+|4 epoch, 7 label, train |   0.948|0.948|         0|
+|4 epoch, 7 label, test  |   0.808|0.808|         0|
+<p>
+<p>
+
+The model preforms incredibly well on the training data with more rounds of training, and the difference between accuracy and f1 disappears. There is a much more dramatic drop in both measures between the train and test sets, although the performance is still improved. 
+<p>
+<br>
+<p>
+
+#### 20 label model
+<img src="notebooks/charts/preds_multistep_20.png" alt="20 label, 4 epoch predictions"/>
+<div style="clear: both;"></div>
+<p>
+
+<img src="notebooks/charts/evals_multistep_20.png" alt="20 label model evaluations"/>
+<div style="clear: both;"></div>
+<p>
+<br>
+<p>
+
+|Loss Value |1 Epoch|4 Epochs|Change|
+|-----------|------:|-------:|-----:|
+|Train Avg  |  1.758|   0.956|-0.802|
+|Eval: Train|  1.234|   0.455|-0.779|
+|Eval: Test |  1.374|   1.082|-0.292|
+<p>
+<p>
+
+|Chart Label|Accuracy<br>1 Epoch|Accuracy<br>4 Epochs|Change|F1<br>1 Epoch|F1<br>4 Epochs|Change|
+|-----------|------------------:|-------------------:|------|------------:|-------------:|-----:|
+|Eval: Train|              0.656|               0.873| 0.217|        0.630|         0.871| 0.241|
+|Eval: Test |              0.603|               0.690| 0.087|        0.580|         0.688| 0.108|
+|           |                   |                    |      |             |              |      |
+|Drop       |              0.053|               0.183| -----|        0.027|         0.183| -----|
+<p>
+<p>
+
+This model also has a dramatic increase in performance on the training data, and a smaller improvement on the test set, with a dramatic drop between the two. The difference between accuracy and f1 has again decreased to almost nothing. <p>
+<p>
+
+|Model                   |Accuracy|F1   |Difference|
+|------------------------|-------:|----:|---------:|
+|1 epoch, 20 label, train|   0.656|0.630|     0.026|
+|1 epoch, 20 label, test |   0.603|0.580|     0.023|
+|                        |        |     |          |
+|4 epoch, 20 label, train|   0.873|0.871|     0.002|
+|4 epoch, 20 label, test |   0.690|0.688|     0.002|
+<p>
+
+The fact that in both of these models, there are such dramatic drops between the train and test set accuracies and f1s, implies that there is some kind of overfitting occuring during training. To control this, additional hyperparameters are likely needed. 
